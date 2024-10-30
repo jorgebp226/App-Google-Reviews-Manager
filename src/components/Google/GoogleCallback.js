@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 const GoogleCallback = () => {
     const navigate = useNavigate();
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchTokens = async () => {
@@ -12,14 +12,10 @@ const GoogleCallback = () => {
 
             if (code) {
                 try {
-                    const user = await getCurrentUser();
-                    const { idToken } = (await fetchAuthSession()).tokens;
-
                     const response = await fetch('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': idToken.toString()
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ code })
                     });
@@ -32,12 +28,17 @@ const GoogleCallback = () => {
                     navigate('/settings');
                 } catch (error) {
                     console.error("Error al conectar con Google:", error);
-                    alert("Hubo un problema al conectar con Google My Business.");
+                    setError(error.message);
+                    setTimeout(() => navigate('/settings'), 3000);
                 }
             }
         };
         fetchTokens();
     }, [navigate]);
+
+    if (error) {
+        return <p>Error: {error}. Redirigiendo...</p>;
+    }
 
     return <p>Conectando con Google My Business...</p>;
 };
