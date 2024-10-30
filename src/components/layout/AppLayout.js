@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Home, Settings, BarChart3, MessageCircle } from 'lucide-react';
 import PreferencesForm from '../forms/PreferencesForm';
-import GoogleConnect from '../components/Google/GoogleConnect'
+import GoogleConnect from '../Google/GoogleConnect'
 const AppLayout = () => {
   const [currentTab, setCurrentTab] = useState('dashboard');
 
