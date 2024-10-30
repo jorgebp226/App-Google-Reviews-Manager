@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCurrentUser, federatedSignIn } from 'aws-amplify/auth';
+import { getCurrentUser, signInWithRedirect } from 'aws-amplify/auth';
 import { useAuthStore } from '../store/auth';
 
 const AuthComponent = () => {
@@ -22,7 +22,9 @@ const AuthComponent = () => {
   };
 
   const handleGoogleSignIn = () => {
-    federatedSignIn({ provider: 'Google' });
+    signInWithRedirect({
+      provider: 'Google'
+    });
   };
 
   if (loading) {
