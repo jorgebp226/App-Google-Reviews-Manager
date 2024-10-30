@@ -42,38 +42,67 @@ const AuthComponent = () => {
             setError('Las contraseñas no coinciden');
             return;
           }
-          await signUp({
+          const signUpResult = await signUp({
             username: formData.email,
             password: formData.password,
-            attributes: {
-              email: formData.email,
-            },
+            options: {
+              userAttributes: {
+                email: formData.email,
+              }
+            }
           });
+          
           setMessage('Se ha enviado un código de verificación a tu correo');
           setFormState('confirmSignUp');
           break;
 
         case 'confirmSignUp':
-          await confirmSignUp({
+          const confirmResult = await confirmSignUp({
             username: formData.email,
-            confirmationCode: formData.verificationCode,
+            confirmationCode: formData.verificationCode
           });
-          setMessage('Cuenta verificada correctamente. Por favor, inicia sesión.');
-          setFormState('signIn');
+          
+          if (confirmResult.isSignUpComplete) {
+            setMessage('Cuenta verificada correctamente. Por favor, inicia sesión.');
+            setFormState('signIn');
+            setFormData(prev => ({
+              ...prev,
+              verificationCode: ''
+            }));
+          }
           break;
 
         case 'signIn':
-          await signIn({
+          const signInResult = await signIn({
             username: formData.email,
             password: formData.password,
           });
-          const user = await getCurrentUser();
-          setAuth(true, user);
+          
+          if (signInResult.isSignedIn) {
+            const user = await getCurrentUser();
+            setAuth(true, user);
+          }
           break;
       }
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'Error en la autenticación');
+      console.error('Error:', err);
+      switch (err.name) {
+        case 'UserNotConfirmedException':
+          setError('Por favor, verifica tu cuenta primero');
+          setFormState('confirmSignUp');
+          break;
+        case 'UsernameExistsException':
+          setError('Este correo electrónico ya está registrado');
+          break;
+        case 'CodeMismatchException':
+          setError('Código de verificación incorrecto');
+          break;
+        case 'NotAuthorizedException':
+          setError('Credenciales incorrectas');
+          break;
+        default:
+          setError(err.message || 'Error en la autenticación');
+      }
     }
   };
 
@@ -83,8 +112,10 @@ const AuthComponent = () => {
         username: formData.email,
       });
       setMessage('Se ha enviado un nuevo código de verificación');
+      setError('');
     } catch (err) {
-      setError(err.message || 'Error al reenviar el código');
+      console.error('Error al reenviar:', err);
+      setError('Error al reenviar el código. Por favor, intenta de nuevo.');
     }
   };
 
@@ -112,7 +143,34 @@ const AuthComponent = () => {
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
-            {formState !== 'confirmSignUp' && (
+            {formState === 'confirmSignUp' ? (
+              <>
+                <div>
+                  <label htmlFor="email" className="sr-only">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    className="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Correo electrónico"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="verificationCode" className="sr-only">Código de verificación</label>
+                  <input
+                    id="verificationCode"
+                    type="text"
+                    required
+                    className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Código de verificación"
+                    value={formData.verificationCode}
+                    onChange={(e) => setFormData({...formData, verificationCode: e.target.value})}
+                  />
+                </div>
+              </>
+            ) : (
               <>
                 <div>
                   <input
@@ -146,19 +204,6 @@ const AuthComponent = () => {
                   placeholder="Confirmar contraseña"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                />
-              </div>
-            )}
-
-            {formState === 'confirmSignUp' && (
-              <div>
-                <input
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Código de verificación"
-                  value={formData.verificationCode}
-                  onChange={(e) => setFormData({...formData, verificationCode: e.target.value})}
                 />
               </div>
             )}
