@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { saveUserPreferences } from '../../services/api';
+import { saveUserPreferences } from '../services/api';
 
 const PreferencesForm = () => {
   const [preference, setPreference] = useState('none');
