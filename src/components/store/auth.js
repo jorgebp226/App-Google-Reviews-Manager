@@ -8,3 +8,5 @@ export const useAuthStore = create((set) => ({
     user: userData 
   }),
 }));
+
+export default useAuthStore;

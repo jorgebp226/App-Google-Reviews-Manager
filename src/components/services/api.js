@@ -29,3 +29,5 @@ export const saveUserPreferences = async (preferences) => {
     throw error;
   }
 }
+
+export default saveUserPreferences;
