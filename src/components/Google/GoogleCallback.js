@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API } from 'aws-amplify';
 import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 const GoogleCallback = () => {
@@ -16,12 +15,18 @@ const GoogleCallback = () => {
                     const user = await getCurrentUser();
                     const { idToken } = (await fetchAuthSession()).tokens;
 
-                    await API.post('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', '/auth/google/callback', {
-                        body: { code },
+                    const response = await fetch('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', {
+                        method: 'POST',
                         headers: {
-                            Authorization: idToken.getJwtToken(),
-                        }
+                            'Content-Type': 'application/json',
+                            'Authorization': idToken.toString()
+                        },
+                        body: JSON.stringify({ code })
                     });
+
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
 
                     alert('Conexión exitosa con Google My Business');
                     navigate('/settings');
