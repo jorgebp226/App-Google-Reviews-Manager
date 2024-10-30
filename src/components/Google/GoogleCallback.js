@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 const GoogleCallback = () => {
     const navigate = useNavigate();
@@ -12,12 +13,16 @@ const GoogleCallback = () => {
 
             if (code) {
                 try {
+                    // Obtener el `sub` del usuario desde Cognito
+                    const { userId } = await getCurrentUser();
+                    
+                    // Enviar `code` y `sub` a la Lambda
                     const response = await fetch('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ code })
+                        body: JSON.stringify({ code, sub: userId })
                     });
 
                     if (!response.ok) {
