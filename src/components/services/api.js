@@ -2,7 +2,7 @@ const API_ENDPOINT = 'https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/goo
 
 export const saveUserPreferences = async (preferences) => {
   try {
-    const response = await fetch(`${API_ENDPOINT}/preferences`, {
+    const response = await fetch(`${API_ENDPOINT}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
