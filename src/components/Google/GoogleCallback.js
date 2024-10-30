@@ -16,7 +16,7 @@ const GoogleCallback = () => {
                     const user = await getCurrentUser();
                     const { idToken } = (await fetchAuthSession()).tokens;
 
-                    await API.post('YOUR_API_NAME', '/auth/google/callback', {
+                    await API.post('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', '/auth/google/callback', {
                         body: { code },
                         headers: {
                             Authorization: idToken.getJwtToken(),
