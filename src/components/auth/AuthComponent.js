@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser, federatedSignIn } from 'aws-amplify/auth';
-import { useAuthStore } from '../../store/auth';
+import { useAuthStore } from '../store/auth';
 
 const AuthComponent = () => {
   const [loading, setLoading] = useState(true);

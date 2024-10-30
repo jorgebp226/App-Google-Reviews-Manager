@@ -1,20 +1,20 @@
-import { Auth } from 'aws-amplify';
+import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 const API_ENDPOINT = 'https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/Preferecias';
 
 export const saveUserPreferences = async (preferences) => {
   try {
-    const user = await Auth.currentAuthenticatedUser();
-    const token = (await Auth.currentSession()).getIdToken().getJwtToken();
+    const user = await getCurrentUser();
+    const { idToken } = (await fetchAuthSession()).tokens;
     
     const response = await fetch(`${API_ENDPOINT}/preferences`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${idToken.getJwtToken()}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        sub: user.attributes.sub,
+        sub: user.userId,
         ...preferences
       }),
     });
@@ -28,6 +28,6 @@ export const saveUserPreferences = async (preferences) => {
     console.error('Error:', error);
     throw error;
   }
-}
+};
 
 export default saveUserPreferences;
