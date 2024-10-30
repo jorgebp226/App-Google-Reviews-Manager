@@ -1,24 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Amplify } from 'aws-amplify';
+import awsconfig from './aws-exports';
+import { useAuthStore } from './store/auth';
+import AppLayout from './components/layout/AppLayout';
+import AuthComponent from './components/auth/AuthComponent';
+
+Amplify.configure(awsconfig);
 
 function App() {
+  const { isAuthenticated } = useAuthStore();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {!isAuthenticated ? <AuthComponent /> : <AppLayout />}
+    </>
   );
 }
 
