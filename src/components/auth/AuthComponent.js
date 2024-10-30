@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { getCurrentUser, signInWithRedirect } from 'aws-amplify/auth';
+import { getCurrentUser, signInWithRedirect, signUp, signIn } from 'aws-amplify/auth';
 import { useAuthStore } from '../store/auth';
 
 const AuthComponent = () => {
   const [loading, setLoading] = useState(true);
+  const [formState, setFormState] = useState('signIn');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
   useEffect(() => {
@@ -21,10 +28,35 @@ const AuthComponent = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    signInWithRedirect({
-      provider: 'Google'
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      if (formState === 'signUp') {
+        if (formData.password !== formData.confirmPassword) {
+          setError('Las contraseñas no coinciden');
+          return;
+        }
+        await signUp({
+          username: formData.email,
+          password: formData.password,
+          attributes: {
+            email: formData.email,
+          },
+        });
+        setFormState('signIn');
+      } else {
+        await signIn({
+          username: formData.email,
+          password: formData.password,
+        });
+        const user = await getCurrentUser();
+        setAuth(true, user);
+      }
+    } catch (err) {
+      setError(err.message || 'Error en la autenticación');
+    }
   };
 
   if (loading) {
@@ -43,16 +75,74 @@ const AuthComponent = () => {
             Review Manager
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Gestiona tus reseñas de Google My Business
+            {formState === 'signIn' ? 'Inicia sesión en tu cuenta' : 'Crea una nueva cuenta'}
           </p>
         </div>
         
-        <div className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <input
+                type="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Correo electrónico"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Contraseña"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+              />
+            </div>
+            {formState === 'signUp' && (
+              <div>
+                <input
+                  type="password"
+                  required
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Confirmar contraseña"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                />
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {formState === 'signIn' ? 'Iniciar sesión' : 'Registrarse'}
+            </button>
+          </div>
+        </form>
+
+        <div className="text-center">
           <button
-            onClick={handleGoogleSignIn}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            type="button"
+            className="text-sm text-blue-600 hover:text-blue-500"
+            onClick={() => {
+              setFormState(formState === 'signIn' ? 'signUp' : 'signIn');
+              setError('');
+            }}
           >
-            Continuar con Google
+            {formState === 'signIn' 
+              ? '¿No tienes cuenta? Regístrate' 
+              : '¿Ya tienes cuenta? Inicia sesión'}
           </button>
         </div>
       </div>
