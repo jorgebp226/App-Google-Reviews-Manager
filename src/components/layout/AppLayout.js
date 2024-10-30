@@ -1,14 +1,20 @@
+// src/components/layout/AppLayout.js
 import React, { useState } from 'react';
 import { Home, Settings, BarChart3, MessageCircle } from 'lucide-react';
 import PreferencesForm from '../forms/PreferencesForm';
-
+import GoogleConnect from '../components/Google/GoogleConnect'
 const AppLayout = () => {
   const [currentTab, setCurrentTab] = useState('dashboard');
 
   const renderContent = () => {
     switch(currentTab) {
       case 'settings':
-        return <PreferencesForm />;
+        return (
+          <>
+            <PreferencesForm />
+            <GoogleConnect /> {/* Añadimos el componente de conexión con Google */}
+          </>
+        );
       case 'dashboard':
         return (
           <div className="bg-white rounded-lg shadow p-6">

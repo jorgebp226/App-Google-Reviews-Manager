@@ -3,14 +3,20 @@ import React, { useState } from 'react';
 
 const API_ENDPOINT = 'https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/Preferecias';
 
-const saveUserPreferences = async (preferences) => {
+export const saveUserPreferences = async (preferences) => {
   try {
+    const { userId } = await getCurrentUser();
+    const preferencesWithUser = {
+      ...preferences,
+      sub: userId
+    };
+
     const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(preferences),
+      body: JSON.stringify(preferencesWithUser),
     });
 
     if (!response.ok) {
@@ -35,9 +41,7 @@ const PreferencesForm = () => {
     setSuccess('');
 
     try {
-      const { userId } = await getCurrentUser();
       const preferences = {
-        sub: userId,
         responsePreference: preference
       };
       
