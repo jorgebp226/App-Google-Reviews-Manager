@@ -11,13 +11,31 @@ const PreferencesForm = ({ profile }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [currentPreference, setCurrentPreference] = useState(null);
 
   // Cargar preferencias existentes al montar el componente
   useEffect(() => {
-    if (profile?.preferences) {
-      setPreference(profile.preferences.responsePreference || 'none');
-    }
-  }, [profile]);
+    const fetchPreference = async () => {
+      try {
+        const { userId } = await getCurrentUser();
+        const response = await fetch(
+          `https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/preferencias?sub=${userId}&googleAccountId=${profile.accountId}`
+        );
+        
+        if (!response.ok) {
+          throw new Error('Error al obtener preferencias');
+        }
+        
+        const data = await response.json();
+        setPreference(data.preference);
+        setCurrentPreference(data.preference);
+      } catch (err) {
+        console.error('Error al cargar preferencias:', err);
+      }
+    };
+
+    fetchPreference();
+  }, [profile.accountId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +70,15 @@ const PreferencesForm = ({ profile }) => {
         <div>
           <h3 className="font-medium">{profile.profileName}</h3>
           <p className="text-sm text-gray-500">{profile.profileEmail}</p>
+          {currentPreference && (
+            <p className="text-xs text-gray-400 mt-1">
+              Configuración actual: {
+                currentPreference === 'all' ? 'Responder a todas las reseñas' :
+                currentPreference === 'positive' ? 'Responder solo a reseñas positivas' :
+                'No responder automáticamente'
+              }
+            </p>
+          )}
         </div>
       </div>
 
