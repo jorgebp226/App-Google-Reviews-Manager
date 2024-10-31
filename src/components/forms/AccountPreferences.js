@@ -3,6 +3,8 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { saveUserPreferences } from '../services/api';
+import { getCurrentUser } from 'aws-amplify/auth';
+
 
 const PreferencesForm = ({ profile }) => {
   const [preference, setPreference] = useState('none');

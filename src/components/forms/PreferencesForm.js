@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { saveUserPreferences } from '../services/api';
+import { getCurrentUser } from 'aws-amplify/auth';
+
 
 const PreferencesForm = () => {
   const [preference, setPreference] = useState('none');
