@@ -19,34 +19,38 @@ const ConnectedGoogleAccounts = () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Obtener el sub del usuario actual
+      const currentUser = await getCurrentUser();
+      const sub = currentUser?.userId; // Asegura que obtienes el sub como en el primer componente
+      console.log('Este es el sub del usuario', sub);
       
-      // 1. Obtener el sub del usuario actual
-      const { sub } = await getCurrentUser();
-      console.log('Este es el sub del usuario',sub)
-      // 2. Realizar la llamada a la API
+      // Verificar si el sub está disponible antes de hacer la solicitud
+      if (!sub) throw new Error('No se pudo obtener el sub del usuario');
+      
+      // Realizar la llamada a la API
       const response = await fetch(
         `https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/cuentas-conectadas?sub=${sub}`
       );
-      
-      // 3. Verificar si la respuesta es correcta
+
+      // Verificar si la respuesta es correcta
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      // 4. Obtener los datos JSON directamente
+
+      // Obtener los datos JSON directamente
       const data = await response.json();
-      
-      // 5. Verificar que tenemos los datos esperados
+
+      // Verificar que tenemos los datos esperados
       if (!data || !data.profiles) {
         throw new Error('Formato de respuesta inválido');
       }
-      
-      // 6. Establecer los perfiles en el estado
+
+      // Establecer los perfiles en el estado
       setProfiles(data.profiles);
-      
-      // 7. Log para debugging (puedes quitarlo en producción)
+
+      // Log para debugging
       console.log('Perfiles cargados:', data.profiles);
-      
     } catch (error) {
       console.error("Error al obtener perfiles:", error);
       setError('No pudimos cargar tus cuentas de Google. Por favor, intenta de nuevo más tarde.');
@@ -150,7 +154,7 @@ const ConnectedGoogleAccounts = () => {
                   </span>
                 )}
               </div>
-              
+
               <div className="flex-grow">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium text-gray-900">
@@ -170,7 +174,7 @@ const ConnectedGoogleAccounts = () => {
                   Última actualización: {formatDate(profile.lastUpdated)}
                 </p>
               </div>
-              
+
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
           ))}
