@@ -13,10 +13,7 @@ const GoogleCallback = () => {
 
             if (code) {
                 try {
-                    // Obtener el `sub` del usuario desde Cognito
                     const { userId } = await getCurrentUser();
-                    
-                    // Enviar `code` y `sub` a la Lambda
                     const response = await fetch('https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/google-auth', {
                         method: 'POST',
                         headers: {
