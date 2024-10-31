@@ -1,19 +1,45 @@
 // src/components/layout/AppLayout.js
 import React, { useState } from 'react';
-import { Home, Settings, BarChart3, MessageCircle } from 'lucide-react';
+import { Home, Settings, BarChart3, MessageCircle, LogOut } from 'lucide-react';
+import { signOut } from 'aws-amplify/auth';
+import { useNavigate } from 'react-router-dom';
 import PreferencesForm from '../forms/PreferencesForm';
-import GoogleConnect from '../Google/GoogleConnect'
+import GoogleConnect from '../Google/GoogleConnect';
+import { useAuthStore } from '../store/auth';
+
 const AppLayout = () => {
   const [currentTab, setCurrentTab] = useState('dashboard');
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setAuth(false, null);
+      navigate('/');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
 
   const renderContent = () => {
     switch(currentTab) {
       case 'settings':
         return (
-          <>
+          <div className="space-y-6">
             <PreferencesForm />
-            <GoogleConnect /> {/* Añadimos el componente de conexión con Google */}
-          </>
+            <GoogleConnect />
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-lg font-medium mb-4">Sesión</h2>
+              <button 
+                onClick={handleSignOut}
+                className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                <LogOut className="h-4 w-4" />
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
         );
       case 'dashboard':
         return (
