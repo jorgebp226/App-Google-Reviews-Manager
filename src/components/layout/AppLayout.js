@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, Settings, BarChart3, MessageCircle, LogOut, Loader2, AlertCircle, Check, Star, ChevronRight, RefreshCcw } from 'lucide-react';
 import { signOut } from 'aws-amplify/auth';
 import { useNavigate } from 'react-router-dom';
-import PreferencesForm from '../forms/PreferencesForm';
+import AccountPreferences from '../forms/AccountPreferences';
 import GoogleConnect from '../Google/GoogleConnect';
 import { useAuthStore } from '../store/auth';
 import { getCurrentUser } from 'aws-amplify/auth';
