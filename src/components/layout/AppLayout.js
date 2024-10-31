@@ -20,22 +20,35 @@ const ConnectedGoogleAccounts = () => {
       setLoading(true);
       setError(null);
       
+      // 1. Obtener el sub del usuario actual
       const { sub } = await getCurrentUser();
+      
+      // 2. Realizar la llamada a la API
       const response = await fetch(
         `https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/cuentas-conectadas?sub=${sub}`
       );
       
-      if (!response.ok) throw new Error('Error al obtener perfiles');
+      // 3. Verificar si la respuesta es correcta
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      const responseData = await response.json();
+      // 4. Obtener los datos JSON directamente
+      const data = await response.json();
       
-      // Parsear el body que viene como string
-      const data = JSON.parse(responseData.body);
-      console.log('Datos procesados:', data); // Para debugging
+      // 5. Verificar que tenemos los datos esperados
+      if (!data || !data.profiles) {
+        throw new Error('Formato de respuesta inválido');
+      }
       
-      setProfiles(data.profiles || []);
+      // 6. Establecer los perfiles en el estado
+      setProfiles(data.profiles);
+      
+      // 7. Log para debugging (puedes quitarlo en producción)
+      console.log('Perfiles cargados:', data.profiles);
+      
     } catch (error) {
-      console.error("Error completo:", error);
+      console.error("Error al obtener perfiles:", error);
       setError('No pudimos cargar tus cuentas de Google. Por favor, intenta de nuevo más tarde.');
     } finally {
       setLoading(false);
@@ -86,6 +99,18 @@ const ConnectedGoogleAccounts = () => {
     );
   }
 
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -98,7 +123,9 @@ const ConnectedGoogleAccounts = () => {
           className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
           aria-label="Refrescar cuentas"
         >
-          <RefreshCcw className={`h-5 w-5 text-gray-500 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCcw 
+            className={`h-5 w-5 text-gray-500 ${refreshing ? 'animate-spin' : ''}`} 
+          />
         </button>
       </CardHeader>
       <CardContent>
@@ -113,6 +140,9 @@ const ConnectedGoogleAccounts = () => {
                   src={profile.profilePicture}
                   alt={`${profile.profileName} avatar`}
                   className="w-12 h-12 rounded-full"
+                  onError={(e) => {
+                    e.target.src = 'https://www.gravatar.com/avatar/?d=mp';
+                  }}
                 />
                 {profile.isPrimary && (
                   <span className="absolute -top-1 -right-1">
@@ -124,7 +154,7 @@ const ConnectedGoogleAccounts = () => {
               <div className="flex-grow">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium text-gray-900">
-                    {profile.profileName}
+                    {profile.profileName || 'Sin nombre'}
                   </h3>
                   {profile.status === 'active' && (
                     <span className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
@@ -133,9 +163,11 @@ const ConnectedGoogleAccounts = () => {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500">{profile.profileEmail}</p>
+                <p className="text-sm text-gray-500">
+                  {profile.profileEmail || 'Sin correo electrónico'}
+                </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Última actualización: {new Date(profile.lastUpdated).toLocaleDateString()}
+                  Última actualización: {formatDate(profile.lastUpdated)}
                 </p>
               </div>
               
