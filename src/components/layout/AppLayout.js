@@ -6,8 +6,8 @@ import PreferencesForm from '../forms/PreferencesForm';
 import GoogleConnect from '../Google/GoogleConnect';
 import { useAuthStore } from '../store/auth';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 const ConnectedGoogleAccounts = () => {
   const [profiles, setProfiles] = useState([]);
