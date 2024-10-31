@@ -2,7 +2,7 @@
 import React from 'react';
 
 const GoogleConnect = () => {
-    const clientId = "273306591185-9opq5im08p95a8puikqk9lgltl91d76q.apps.googleusercontent.com";
+    const clientId = "179591697653-f9rkd82ajen3g9qn9tmhneck1gnh4of8.apps.googleusercontent.com";
     const redirectUri = "https://reviewsmanager.betalky.es/auth/callback";
     const scope = "https://www.googleapis.com/auth/business.manage";
 
