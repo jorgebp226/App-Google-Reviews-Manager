@@ -22,7 +22,7 @@ const ConnectedGoogleAccounts = () => {
       
       // 1. Obtener el sub del usuario actual
       const { sub } = await getCurrentUser();
-      
+      console.log(sub)
       // 2. Realizar la llamada a la API
       const response = await fetch(
         `https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/cuentas-conectadas?sub=${sub}`
