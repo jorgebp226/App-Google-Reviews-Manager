@@ -21,15 +21,22 @@ const ConnectedGoogleAccounts = () => {
       setError(null);
       
       const { sub } = await getCurrentUser();
-      const response = await fetch(`https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/cuentas-conectadas?sub=${sub}`);
+      const response = await fetch(
+        `https://j1asmzdgbg.execute-api.eu-west-3.amazonaws.com/google-reviews/cuentas-conectadas?sub=${sub}`
+      );
       
       if (!response.ok) throw new Error('Error al obtener perfiles');
       
-      const data = await response.json();
+      const responseData = await response.json();
+      
+      // Parsear el body que viene como string
+      const data = JSON.parse(responseData.body);
+      console.log('Datos procesados:', data); // Para debugging
+      
       setProfiles(data.profiles || []);
     } catch (error) {
+      console.error("Error completo:", error);
       setError('No pudimos cargar tus cuentas de Google. Por favor, intenta de nuevo más tarde.');
-      console.error("Error al obtener perfiles:", error);
     } finally {
       setLoading(false);
     }
@@ -62,22 +69,34 @@ const ConnectedGoogleAccounts = () => {
     );
   }
 
-  if (profiles.length === 0) {
+  if (!profiles || profiles.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-lg p-6 text-center">
-        <p className="text-gray-600">No hay cuentas de Google conectadas</p>
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
+              No hay cuentas conectadas
+            </h3>
+            <p className="text-sm text-gray-500">
+              Conecta tu cuenta de Google para comenzar a gestionar tus reseñas.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg font-semibold">Cuentas de Google Conectadas</CardTitle>
+        <CardTitle className="text-lg font-semibold">
+          Cuentas de Google Conectadas ({profiles.length})
+        </CardTitle>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+          aria-label="Refrescar cuentas"
         >
           <RefreshCcw className={`h-5 w-5 text-gray-500 ${refreshing ? 'animate-spin' : ''}`} />
         </button>
