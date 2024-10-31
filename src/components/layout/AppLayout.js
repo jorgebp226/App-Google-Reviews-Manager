@@ -204,9 +204,9 @@ const AppLayout = () => {
       case 'settings':
         return (
           <div className="space-y-6">
-            <PreferencesForm />
             <GoogleConnect />
             <ConnectedGoogleAccounts />
+            <AccountPreferences /> {/* Reemplazamos PreferencesForm por AccountPreferences */}
             <button 
               onClick={handleSignOut} 
               className="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
